@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity 0.6.12;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
@@ -32,10 +32,9 @@ contract Reservoir {
     * @param target_ The recipient of dripped tokens
     */
   constructor(uint dripRate_, address token_, address target_) public {
-    ERC20 token = ERC20(token_);
+    token = ERC20(token_);
     dripStart = block.number;
     dripRate = dripRate_;
-    token = token_;
     target = target_;
     dripped = 0;
   }

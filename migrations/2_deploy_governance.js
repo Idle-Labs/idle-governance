@@ -37,6 +37,8 @@ module.exports = async function (deployer, network, accounts) {
   );
   console.log('Governance:', gov.address);
 
+
+  // TODO this should be upgradable with openzeppelin
   const controller = await deployer.deploy(IdleController,
     oracle.address,
     idle.address,

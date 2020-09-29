@@ -1,5 +1,7 @@
 pragma solidity 0.6.12;
 
+import "./interfaces/IdleToken.sol";
+
 contract IdleControllerStorage {
   struct Market {
     /// @notice Whether or not this market is listed

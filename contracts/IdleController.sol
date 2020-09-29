@@ -1,6 +1,7 @@
 pragma solidity 0.6.12;
 
-import "@openzeppelin/contracts/ownership/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./interfaces/IdleToken.sol";
 import "./lib/Exponential.sol";
 
@@ -61,13 +62,13 @@ contract IdleController is Ownable, IdleControllerStorage, Exponential {
           IdleToken idleToken = allMarkets_[i];
           if (markets[address(idleToken)].isIdled) {
               // TODO test this
-              Exp memory tokenPriceNorm = mul_(Exp({mantissa: idleToken.tokenPrice()}), 10**(18-(idleToken.tokenDecimals()))); // norm to 1e18 always
+              uint256 tokenDecimals = ERC20(idleToken.token()).decimals();
+              Exp memory tokenPriceNorm = mul_(Exp({mantissa: idleToken.tokenPrice()}), 10**(18-tokenDecimals)); // norm to 1e18 always
               Exp memory tokenSupply = Exp({mantissa: idleToken.totalSupply()}); // 1e18 always
-              Exp memory tvl = mul_(tokenPrice, tokenSupply); // 1e18
-              Exp memory assetPrice = Exp({mantissa: oracle.getUnderlyingPrice(idleToken)}); // Must return a normalized price to 1e18
+              Exp memory tvl = mul_(tokenPriceNorm, tokenSupply); // 1e18
+              Exp memory assetPrice = Exp({mantissa: oracle.getUnderlyingPrice(address(idleToken))}); // Must return a normalized price to 1e18
               Exp memory tvlUnderlying = mul_(tvl, assetPrice); // 1e18
-              // TODO Modify IdleContract to include gov APR (but exclude IDLE apr?)
-              Exp memory utility = mul_(tvlUnderlying, Exp({mantissa: idleToken.getAvgAPR()}); // avgAPR 1e18 always
+              Exp memory utility = mul_(tvlUnderlying, Exp({mantissa: idleToken.getAvgAPR()})); // avgAPR 1e18 always
 
               utilities[i] = utility;
               totalUtility = add_(totalUtility, utility);
@@ -78,7 +79,7 @@ contract IdleController is Ownable, IdleControllerStorage, Exponential {
           IdleToken idleToken = allMarkets[i];
           uint256 newSpeed = totalUtility.mantissa > 0 ? mul_(idleRate, div_(utilities[i], totalUtility)) : 0;
           idleSpeeds[address(idleToken)] = newSpeed;
-          emit IdleSpeedUpdated(idleToken, newSpeed);
+          emit IdleSpeedUpdated(address(idleToken), newSpeed);
       }
   }
 
@@ -125,7 +126,7 @@ contract IdleController is Ownable, IdleControllerStorage, Exponential {
       uint256 supplierDelta = mul_(supplierTokens, deltaIndex);
       uint256 supplierAccrued = add_(idleAccrued[supplier], supplierDelta);
       idleAccrued[supplier] = transferIdle(supplier, supplierAccrued, distributeAll ? 0 : idleClaimThreshold);
-      emit DistributedIdle(IdleToken(idleToken), supplier, supplierDelta, supplyIndex.mantissa);
+      emit DistributedIdle(idleToken, supplier, supplierDelta, supplyIndex.mantissa);
   }
 
   /**
@@ -152,7 +153,9 @@ contract IdleController is Ownable, IdleControllerStorage, Exponential {
    * @param holder The address to claim IDLE for
    */
   function claimIdle(address holder) public {
-      return claimIdle(holder, allMarkets);
+      address[] memory holders = new address[](1);
+      holders[0] = holder;
+      return claimIdle(holders, allMarkets);
   }
 
   /**
@@ -210,7 +213,7 @@ contract IdleController is Ownable, IdleControllerStorage, Exponential {
       require(market.isIdled == false, "idle market already added");
 
       market.isIdled = true;
-      emit MarketIdled(IdleToken(idleToken), true);
+      emit MarketIdled(idleToken, true);
 
       if (idleSupplyState[idleToken].index == 0 && idleSupplyState[idleToken].block == 0) {
           idleSupplyState[idleToken] = IdleMarketState({
@@ -229,7 +232,7 @@ contract IdleController is Ownable, IdleControllerStorage, Exponential {
       require(market.isIdled == true, "market is not a idle market");
 
       market.isIdled = false;
-      emit MarketIdled(IdleToken(idleToken), false);
+      emit MarketIdled(idleToken, false);
 
       refreshIdleSpeedsInternal();
   }

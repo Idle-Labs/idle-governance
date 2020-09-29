@@ -59,13 +59,13 @@ module.exports = {
       // gas: 300000,
       gasPrice: 0x01
     },
-    test: {
-      host: '127.0.0.1',
-      port: 8545,
-      network_id: '*',
-      gasPrice: 1000000000,
-      gasPrice: 0x01      // <-- Use this low gas price
-    },
+    // test: {
+    //   host: '127.0.0.1',
+    //   port: 8545,
+    //   network_id: '*',
+    //   gasPrice: 1000000000,
+    //   gasPrice: 0x01      // <-- Use this low gas price
+    // },
     coverage: {
       host: "localhost",
       network_id: "*",
