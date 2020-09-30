@@ -17,7 +17,7 @@ contract PriceOracle is Ownable {
   address constant public COMP = 0xc00e94Cb662C3520282E6f5717214004A7f26888;
 
   uint256 public blocksPerYear = 2371428; // -> blocks per year with ~13.3s block time
-  // underlying -> chainlink feed
+  // underlying -> chainlink feed see https://docs.chain.link/docs/reference-contracts
   mapping (address => address) public priceFeedsUSD;
   mapping (address => address) public priceFeedsETH;
 
