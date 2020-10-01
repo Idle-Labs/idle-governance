@@ -14,6 +14,9 @@ import "./IdleControllerStorage.sol";
  * @author Original author Idleound, modified by Idle
  */
 contract IdleController is Ownable, IdleControllerStorage, Exponential {
+  /// @notice Emitted when an admin supports a market
+  event MarketListed(address idleToken);
+
   /// @notice Emitted when market idled status is changed
   event MarketIdled(address idleToken, bool isIdled);
 
@@ -61,7 +64,6 @@ contract IdleController is Ownable, IdleControllerStorage, Exponential {
       for (uint256 i = 0; i < allMarkets_.length; i++) {
           IdleToken idleToken = allMarkets_[i];
           if (markets[address(idleToken)].isIdled) {
-              // TODO test this
               uint256 tokenDecimals = ERC20(idleToken.token()).decimals();
               Exp memory tokenPriceNorm = mul_(Exp({mantissa: idleToken.tokenPrice()}), 10**(18-tokenDecimals)); // norm to 1e18 always
               Exp memory tokenSupply = Exp({mantissa: idleToken.totalSupply()}); // 1e18 always
@@ -235,6 +237,39 @@ contract IdleController is Ownable, IdleControllerStorage, Exponential {
       emit MarketIdled(idleToken, false);
 
       refreshIdleSpeedsInternal();
+  }
+
+  /**
+    * @notice Add the market to the markets mapping and set it as listed
+    * @dev Admin function to set isListed and add support for the market
+    * @param idleTokens The array of addresses of the markets (token) to list
+    * @return uint 0=success, otherwise a failure. (See enum Error for details)
+    */
+  function _supportMarkets(address[] memory idleTokens) external onlyOwner returns (uint256) {
+      address idleToken;
+      for (uint256 j = 0; j < idleTokens.length; j++) {
+          idleToken = idleTokens[j];
+          if (markets[address(idleToken)].isListed) {
+              /* return fail(Error.MARKET_ALREADY_LISTED, FailureInfo.SUPPORT_MARKET_EXISTS); */
+              // see https://github.com/compound-finance/compound-protocol/blob/master/contracts/ErrorReporter.sol#L15
+              return 10;
+          }
+
+          markets[idleToken] = Market({isListed: true, isIdled: false});
+
+          _addMarketInternal(idleToken);
+
+          emit MarketListed(idleToken);
+      }
+
+      return 0;
+  }
+
+  function _addMarketInternal(address idleToken) internal {
+      for (uint i = 0; i < allMarkets.length; i ++) {
+          require(allMarkets[i] != IdleToken(idleToken), "market already added");
+      }
+      allMarkets.push(IdleToken(idleToken));
   }
 
   /**

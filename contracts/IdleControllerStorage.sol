@@ -8,12 +8,10 @@ contract IdleControllerStorage {
     bool isListed;
     /// @notice Whether or not this market receives IDLE
     bool isIdled;
-    /// @notice Per-market mapping of "accounts in this asset"
-    mapping(address => bool) accountMembership;
   }
 
   struct IdleMarketState {
-    /// @notice The market's last updated compBorrowIndex or compSupplyIndex
+    /// @notice The market's last updated idleSupplyIndex
     uint256 index;
     /// @notice The block number the index was last updated at
     uint256 block;
