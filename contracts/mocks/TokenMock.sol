@@ -6,5 +6,6 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 contract TokenMock is ERC20 {
   constructor()
     ERC20('FOO', 'FOO') public {
+      _mint(msg.sender, 1000 * 10**18);
   }
 }
