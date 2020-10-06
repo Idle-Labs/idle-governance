@@ -151,16 +151,6 @@ contract IdleController is Ownable, IdleControllerStorage, Exponential {
   }
 
   /**
-   * @notice Claim all the idle accrued by holder in all markets
-   * @param holder The address to claim IDLE for
-   */
-  function claimIdle(address holder) public {
-      address[] memory holders = new address[](1);
-      holders[0] = holder;
-      return claimIdle(holders, allMarkets);
-  }
-
-  /**
    * @notice Claim all idle accrued by the holders
    * @param holders The addresses to claim IDLE for
    * @param idleTokens The list of markets to claim IDLE in
