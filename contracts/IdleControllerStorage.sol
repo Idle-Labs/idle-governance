@@ -2,7 +2,29 @@ pragma solidity 0.6.12;
 
 import "./interfaces/IdleToken.sol";
 
-contract IdleControllerStorage {
+contract UnitrollerAdminStorage {
+    /**
+    * @notice Administrator for this contract
+    */
+    address public admin;
+
+    /**
+    * @notice Pending administrator for this contract
+    */
+    address public pendingAdmin;
+
+    /**
+    * @notice Active brains of Unitroller
+    */
+    address public comptrollerImplementation;
+
+    /**
+    * @notice Pending brains of Unitroller
+    */
+    address public pendingComptrollerImplementation;
+}
+
+contract IdleControllerStorage is UnitrollerAdminStorage {
   struct Market {
     /// @notice Whether or not this market is listed
     bool isListed;

@@ -1,6 +1,5 @@
 pragma solidity 0.6.12;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./interfaces/IdleToken.sol";
 import "./lib/Exponential.sol";
@@ -8,12 +7,13 @@ import "./lib/Exponential.sol";
 import "./PriceOracle.sol";
 import "./Idle.sol";
 import "./IdleControllerStorage.sol";
+import "./Unitroller.sol";
 
 /**
  * @title Idle Controller Contract
- * @author Original author Idleound, modified by Idle
+ * @author Original author Compound, modified by Idle
  */
-contract IdleController is Ownable, IdleControllerStorage, Exponential {
+contract IdleController is IdleControllerStorage, Exponential {
   /// @notice Emitted when an admin supports a market
   event MarketListed(address idleToken);
 
@@ -42,8 +42,16 @@ contract IdleController is Ownable, IdleControllerStorage, Exponential {
   address public idleAddress;
 
   constructor(address _oracle, address _idle) public {
+    admin = msg.sender;
     oracle = PriceOracle(_oracle);
     idleAddress = _idle;
+  }
+
+  /**
+   * @notice Checks caller is admin, or this contract is becoming the new implementation
+   */
+  function adminOrInitializing() internal view returns (bool) {
+      return msg.sender == admin || msg.sender == comptrollerImplementation;
   }
 
   function refreshIdleSpeeds() public {
@@ -171,7 +179,8 @@ contract IdleController is Ownable, IdleControllerStorage, Exponential {
    * @notice Set the amount of IDLE distributed per block
    * @param idleRate_ The amount of IDLE wei per block to distribute
    */
-  function _setIdleRate(uint256 idleRate_) external onlyOwner {
+  function _setIdleRate(uint256 idleRate_) public {
+      require(adminOrInitializing(), "only admin can change idle rate");
       uint256 oldRate = idleRate;
       idleRate = idleRate_;
       emit NewIdleRate(oldRate, idleRate_);
@@ -179,7 +188,8 @@ contract IdleController is Ownable, IdleControllerStorage, Exponential {
       refreshIdleSpeedsInternal();
   }
 
-  function _setPriceOracle(address priceOracle_) external onlyOwner {
+  function _setPriceOracle(address priceOracle_) public {
+      require(msg.sender == admin, "only admin can change price oracle");
       address oldOracle = address(oracle);
       oracle = PriceOracle(priceOracle_);
       emit NewIdleOracle(oldOracle, priceOracle_);
@@ -191,7 +201,8 @@ contract IdleController is Ownable, IdleControllerStorage, Exponential {
    * @notice Add markets to idleMarkets, allowing them to earn IDLE in the flywheel
    * @param idleTokens The addresses of the markets to add
    */
-  function _addIdleMarkets(address[] memory idleTokens) external onlyOwner {
+  function _addIdleMarkets(address[] memory idleTokens) public {
+      require(adminOrInitializing(), "only admin can change comp rate");
       for (uint256 i = 0; i < idleTokens.length; i++) {
           _addIdleMarketInternal(idleTokens[i]);
       }
@@ -219,7 +230,9 @@ contract IdleController is Ownable, IdleControllerStorage, Exponential {
    * @notice Remove a market from idleMarkets, preventing it from earning IDLE in the flywheel
    * @param idleToken The address of the market to drop
    */
-  function _dropIdleMarket(address idleToken) public onlyOwner {
+  function _dropIdleMarket(address idleToken) public {
+      require(msg.sender == admin, "only admin can drop comp market");
+
       Market storage market = markets[idleToken];
       require(market.isIdled == true, "market is not a idle market");
 
@@ -235,7 +248,8 @@ contract IdleController is Ownable, IdleControllerStorage, Exponential {
     * @param idleTokens The array of addresses of the markets (token) to list
     * @return uint 0=success, otherwise a failure. (See enum Error for details)
     */
-  function _supportMarkets(address[] memory idleTokens) external onlyOwner returns (uint256) {
+  function _supportMarkets(address[] memory idleTokens) public returns (uint256) {
+      require(msg.sender == admin, "only admin can change idle markets");
       address idleToken;
       for (uint256 j = 0; j < idleTokens.length; j++) {
           idleToken = idleTokens[j];
@@ -260,6 +274,12 @@ contract IdleController is Ownable, IdleControllerStorage, Exponential {
           require(allMarkets[i] != IdleToken(idleToken), "market already added");
       }
       allMarkets.push(IdleToken(idleToken));
+  }
+
+  function _become(address _unitroller) public {
+      Unitroller unitroller = Unitroller(_unitroller);
+      require(msg.sender == unitroller.admin(), "only unitroller admin can change brains");
+      require(unitroller._acceptImplementation() == 0, "change not authorized");
   }
 
   /**
