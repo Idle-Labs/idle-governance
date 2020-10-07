@@ -13,8 +13,8 @@ module.exports = async function (deployer, network, accounts) {
   if (network === 'test' || network == 'coverage') {
     return;
   }
-  const ONE = new BN('1000000000000000000');
-  const tokenShare = amount => BNify(amount).mul(ONE);
+  const ONE = BNify('1000000000000000000');
+  const tokenShare = amount => BNify(amount).times(ONE);
   const addr0 = '0x0000000000000000000000000000000000000000';
   // Addresses of idleTokens pools currently deployed that will receive IDLE from TGE
   const allIdleTokens = [
@@ -188,9 +188,9 @@ module.exports = async function (deployer, network, accounts) {
   console.log(vesterFactoryBalance.toString());
 
   // Transfer PriceOracle ownership to Timelock
-  await oracle.transferOwnership(timelock.address, {from: creator);
+  await oracle.transferOwnership(timelock.address, {from: creator});
   // Transfer EcosystemFund ownership to Timelock
-  await ecosystem.transferOwnership(timelock.address, {from: creator);
+  await ecosystem.transferOwnership(timelock.address, {from: creator});
   // Transfer IdleController ownership to Timelock
   await controller._setPendingAdmin(timelock.address, {from: creator});
   await timelock.queueTransaction(controller.address, BNify('0'),

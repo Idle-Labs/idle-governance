@@ -7,7 +7,6 @@ import "./lib/Exponential.sol";
 import "./PriceOracle.sol";
 import "./Idle.sol";
 import "./IdleControllerStorage.sol";
-import "./Unitroller.sol";
 
 /**
  * @title Idle Controller Contract
@@ -290,4 +289,9 @@ contract IdleController is IdleControllerStorage, Exponential {
   function getAllMarkets() public view returns (IdleToken[] memory) {
       return allMarkets;
   }
+}
+
+interface Unitroller {
+  function admin() external returns (address);
+  function _acceptImplementation() external returns (uint256);
 }
