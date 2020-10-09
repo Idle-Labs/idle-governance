@@ -8,7 +8,7 @@ const IdleTokenMock = artifacts.require('IdleTokenMock');
 
 const BNify = n => new BN(String(n));
 
-contract('PriceOracle', function ([_, creator, nonOwner, someone, foo, manager, feeReceiver]) {
+contract('IdleController', function ([_, creator, nonOwner, someone, foo, manager, feeReceiver]) {
   beforeEach(async function () {
     this.one = new BN('1000000000000000000');
     this.one8 = new BN('100000000');
@@ -24,7 +24,7 @@ contract('PriceOracle', function ([_, creator, nonOwner, someone, foo, manager, 
     this.idleToken2 = await IdleTokenMock.new({from: creator});
     this.idleToken3 = await IdleTokenMock.new({from: creator});
     this.oracle = await PriceOracleMock.new({from: creator});
-    this.idleTroll = await IdleController.new(this.oracle.address, this.token.address, {from: creator});
+    this.idleTroll = await IdleController.new(this.token.address, {from: creator});
 
     await this.idleToken.setToken(this.foo.address, {from: creator});
 
@@ -36,6 +36,7 @@ contract('PriceOracle', function ([_, creator, nonOwner, someone, foo, manager, 
     await this.idleToken3.setTokenPrice(this.one, {from: creator});
     await this.idleToken3.setApr(BNify('2').mul(this.one), {from: creator});
 
+    await this.idleTroll._setPriceOracle(this.oracle.address, {from: creator});
     await this.idleTroll._supportMarkets([this.idleToken2.address, this.idleToken3.address], {from: creator});
     await this.idleTroll._addIdleMarkets([this.idleToken2.address, this.idleToken3.address], {from: creator});
     await this.idleTroll._setIdleRate(BNify('500000000000000000'), {from: creator}); // 0.5 IDLE per block

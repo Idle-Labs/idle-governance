@@ -40,9 +40,8 @@ contract IdleController is IdleControllerStorage, Exponential {
   PriceOracle public oracle;
   address public idleAddress;
 
-  constructor(address _oracle, address _idle) public {
+  constructor(address _idle) public {
     admin = msg.sender;
-    oracle = PriceOracle(_oracle);
     idleAddress = _idle;
   }
 
@@ -276,7 +275,7 @@ contract IdleController is IdleControllerStorage, Exponential {
   }
 
   function _become(address _unitroller) public {
-      Unitroller unitroller = Unitroller(_unitroller);
+      IUnitroller unitroller = IUnitroller(_unitroller);
       require(msg.sender == unitroller.admin(), "only unitroller admin can change brains");
       require(unitroller._acceptImplementation() == 0, "change not authorized");
   }
@@ -291,7 +290,7 @@ contract IdleController is IdleControllerStorage, Exponential {
   }
 }
 
-interface Unitroller {
+interface IUnitroller {
   function admin() external returns (address);
   function _acceptImplementation() external returns (uint256);
 }

@@ -26,13 +26,13 @@ contract VesterFactory is Ownable {
       uint256[] memory foundersVestingParams,
       uint256[] memory investorsVestingParams
     ) public onlyOwner {
-      require(foundersVestingParams.length == founders.length && founders.length == founderAmounts.length, "FOUNDERS_LEN");
-      require(investorsVestingParams.length == investors.length && investors.length == investorAmounts.length, "INVESTORS_LEN");
+      require(founders.length == founderAmounts.length, "FOUNDERS_LEN");
+      require(investors.length == investorAmounts.length, "INVESTORS_LEN");
       for (uint256 i = 0; i < founders.length; i++) {
-        _deployVesting(founders[i], founderAmounts[i], foundersVestingParams[0], foundersVestingParams[1], foundersVestingParams[2]);
+        _deployVesting(founders[i], founderAmounts[i], vestingStart, foundersVestingParams[0], foundersVestingParams[1]);
       }
       for (uint256 j = 0; j < investors.length; j++) {
-        _deployVesting(investors[j], investorAmounts[j], investorsVestingParams[0], investorsVestingParams[1], investorsVestingParams[2]);
+        _deployVesting(investors[j], investorAmounts[j], vestingStart, investorsVestingParams[0], investorsVestingParams[1]);
       }
     }
 
