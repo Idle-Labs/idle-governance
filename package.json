@@ -42,6 +42,7 @@
     "@uniswap/v2-core": "^1.0.1",
     "bignumber.js": "^9.0.0",
     "dotenv": "^8.2.0",
+    "rlp": "^2.2.6",
     "solidity-coverage": "^0.7.9",
     "web3": "^1.2.11"
   }
