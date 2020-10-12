@@ -200,7 +200,7 @@ contract IdleController is IdleControllerStorage, Exponential {
    * @param idleTokens The addresses of the markets to add
    */
   function _addIdleMarkets(address[] memory idleTokens) public {
-      require(adminOrInitializing(), "only admin can change comp rate");
+      require(adminOrInitializing(), "only admin can change idle rate");
       for (uint256 i = 0; i < idleTokens.length; i++) {
           _addIdleMarketInternal(idleTokens[i]);
       }
@@ -229,7 +229,7 @@ contract IdleController is IdleControllerStorage, Exponential {
    * @param idleToken The address of the market to drop
    */
   function _dropIdleMarket(address idleToken) public {
-      require(msg.sender == admin, "only admin can drop comp market");
+      require(msg.sender == admin, "only admin can drop idle market");
 
       Market storage market = markets[idleToken];
       require(market.isIdled == true, "market is not a idle market");

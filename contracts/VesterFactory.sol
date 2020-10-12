@@ -37,18 +37,18 @@ contract VesterFactory is Ownable {
     }
 
     function _deployVesting(
-      address recepient, uint256 amount,
+      address recipient, uint256 amount,
       uint256 beginVesting, uint256 cliff, uint256 endVesting
     ) internal returns (address vester)  {
-      require(recepient != address(0), 'IS_0');
+      require(recipient != address(0), 'IS_0');
       require(amount != 0, 'IS_0');
 
       uint256 timestamp = block.timestamp;
       require(cliff >= timestamp, 'TIMESTAMP');
       require(endVesting >= timestamp, 'TIMESTAMP');
 
-      vester = address(new Vester(IDLE, recepient, amount, beginVesting, cliff, endVesting));
-      vestingContracts[recepient] = vester;
+      vester = address(new Vester(IDLE, recipient, amount, beginVesting, cliff, endVesting));
+      vestingContracts[recipient] = vester;
       // Idle tokens should already be in this contract
       IERC20(IDLE).transfer(vester, amount);
     }
