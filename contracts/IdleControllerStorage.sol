@@ -1,6 +1,7 @@
 pragma solidity 0.6.12;
 
 import "./interfaces/IdleToken.sol";
+import "./PriceOracle.sol";
 
 contract UnitrollerAdminStorage {
     /**
@@ -58,4 +59,10 @@ contract IdleControllerStorage is UnitrollerAdminStorage {
 
   /// @notice The IDLE accrued but not yet transferred to each user
   mapping(address => uint256) public idleAccrued;
+
+  /// @notice Oracle which gives the price of any given asset
+  PriceOracle public oracle;
+
+  /// @notice IDLE governance token address
+  address public idleAddress;
 }

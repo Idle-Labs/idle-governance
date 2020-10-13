@@ -37,12 +37,8 @@ contract IdleController is IdleControllerStorage, Exponential {
   /// @notice The initial IDLE index for a market
   uint256 public constant idleInitialIndex = 1e36;
 
-  PriceOracle public oracle;
-  address public idleAddress;
-
-  constructor(address _idle) public {
+  constructor() public {
     admin = msg.sender;
-    idleAddress = _idle;
   }
 
   /**
@@ -120,6 +116,7 @@ contract IdleController is IdleControllerStorage, Exponential {
    * @param supplier The address of the supplier to distribute IDLE to
    */
   function distributeIdle(address idleToken, address supplier, bool distributeAll) internal {
+      require(supplier == idleToken, '!Authorized');
       IdleMarketState storage supplyState = idleSupplyState[idleToken];
       Double memory supplyIndex = Double({mantissa: supplyState.index});
       Double memory supplierIndex = Double({mantissa: idleSupplierIndex[idleToken][supplier]});
@@ -130,7 +127,7 @@ contract IdleController is IdleControllerStorage, Exponential {
       }
 
       Double memory deltaIndex = sub_(supplyIndex, supplierIndex);
-      uint256 supplierTokens = IdleToken(idleToken).balanceOf(supplier);
+      uint256 supplierTokens = IdleToken(idleToken).totalSupply();
       uint256 supplierDelta = mul_(supplierTokens, deltaIndex);
       uint256 supplierAccrued = add_(idleAccrued[supplier], supplierDelta);
       idleAccrued[supplier] = transferIdle(supplier, supplierAccrued, distributeAll ? 0 : idleClaimThreshold);
@@ -278,6 +275,14 @@ contract IdleController is IdleControllerStorage, Exponential {
       IUnitroller unitroller = IUnitroller(_unitroller);
       require(msg.sender == unitroller.admin(), "only unitroller admin can change brains");
       require(unitroller._acceptImplementation() == 0, "change not authorized");
+  }
+
+  function _setIdleAddress(address _idleAddress) external {
+    require(msg.sender == admin, "Not authorized");
+    require(idleAddress == address(0), "already initialized");
+    require(_idleAddress != address(0), "address is 0");
+
+    idleAddress = _idleAddress;
   }
 
   /**
