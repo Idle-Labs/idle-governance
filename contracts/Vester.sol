@@ -36,9 +36,6 @@ contract Vester {
         vestingEnd = vestingEnd_;
 
         lastUpdate = vestingBegin;
-
-        // Delegate voting power to recipient
-        IIdle(idle_).delegate(recipient_);
     }
 
     function setRecipient(address recipient_) public {

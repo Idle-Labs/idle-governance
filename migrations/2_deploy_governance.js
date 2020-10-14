@@ -26,35 +26,44 @@ module.exports = async function (deployer, network, accounts) {
       return;
     }
     return await new Promise((resolve, reject) => {
-      web3.currentProvider.send({
+      const payload = {
         jsonrpc: "2.0",
         method: "evm_mine",
-        params: [timestamp],
         id: 12345
-      }, (err, res) => {
+      };
+      if (timestamp) {
+        payload.params = [timestamp];
+      }
+      web3.currentProvider.send(payload, (err, res) => {
         if (err) {
           console.log('advance time err', err);
           return reject(err);
         }
-        console.log('advance time ok', res);
+        // console.log('advance time ok', res);
         return resolve({ok: true, res});
       });
     })
   };
+  const advanceBlocks = async n => {
+    for (var i = 0; i < n; i++) {
+      await advanceTime();
+    }
+  };
+
   const ONE = BNify('1000000000000000000');
   const tokenShare = amount => BNify(amount).times(ONE);
   const addr0 = '0x0000000000000000000000000000000000000000';
   // Addresses of idleTokens pools currently deployed that will receive IDLE from TGE
   const allIdleTokens = [
     '0x3fE7940616e5Bc47b0775a0dccf6237893353bB4', // idleDAI
-    '0x5274891bEC421B39D23760c04A6755eCB444797C', // idleUSDC
-    '0xF34842d05A1c888Ca02769A633DF37177415C2f8', // idleUSDT
-    '0xF52CDcD458bf455aeD77751743180eC4A595Fd3F', // idleSUSD
-    '0xc278041fDD8249FE4c1Aad1193876857EEa3D68c', // idleTUSD
-    '0x8C81121B15197fA0eEaEE1DC75533419DcfD3151', // idleWBTC
-    '0xa14eA0E11121e6E951E87c66AFe460A00BCD6A16', // idleDAI safe
-    '0x3391bc034f2935ef0e1e41619445f998b2680d35', // idleUSDC safe
-    '0x28fAc5334C9f7262b3A3Fe707e250E01053e07b5'  // idleUSDT safe
+    // '0x5274891bEC421B39D23760c04A6755eCB444797C', // idleUSDC
+    // '0xF34842d05A1c888Ca02769A633DF37177415C2f8', // idleUSDT
+    // '0xF52CDcD458bf455aeD77751743180eC4A595Fd3F', // idleSUSD
+    // '0xc278041fDD8249FE4c1Aad1193876857EEa3D68c', // idleTUSD
+    // '0x8C81121B15197fA0eEaEE1DC75533419DcfD3151', // idleWBTC
+    // '0xa14eA0E11121e6E951E87c66AFe460A00BCD6A16', // idleDAI safe
+    // '0x3391bc034f2935ef0e1e41619445f998b2680d35', // idleUSDC safe
+    // '0x28fAc5334C9f7262b3A3Fe707e250E01053e07b5'  // idleUSDT safe
   ];
   // hw wallet for deployments
   const creator = '0xE5Dab8208c1F4cce15883348B72086dBace3e64B';
@@ -63,12 +72,11 @@ module.exports = async function (deployer, network, accounts) {
   const idleMultisig = '0xaDa343Cb6820F4f5001749892f6CAA9920129F2A';
   // Founders / team
   const founders = [
-    // TODO uncomment
-    // {address: '0x3675D2A334f17bCD4689533b7Af263D48D96eC72', amount: tokenShare('')}, // founderW
-    // {address: '0x3675D2A334f17bCD4689533b7Af263D48D96eC72', amount: tokenShare('')}, // founderW
+    // TODO uncomment and check values
+    {address: '0x3675D2A334f17bCD4689533b7Af263D48D96eC72', amount: tokenShare('1355380')}, // founderW
     // {address: '0x4F314638B730Bc46Df5e600E524267d0641C98B4', amount: tokenShare('')}, // founderM
     // {address: '0xd889Acb680D5eDbFeE593d2b7355a666248bAB9b', amount: tokenShare('')}, // founderS
-    {address: idleMultisig, amount: tokenShare('479700')}  // Future team
+    // {address: idleMultisig, amount: tokenShare('479700')}  // Future team
   ];
   // Investors
   const investors = [
@@ -141,7 +149,6 @@ module.exports = async function (deployer, network, accounts) {
     console.log('Governance:', gov.address);
 
     const controllerImplementation = await IdleController.new(
-      idle.address,
       {from: creator} // owner will then be Timelock
     );
     console.log('Controller implementation:', controllerImplementation.address);
@@ -155,6 +162,8 @@ module.exports = async function (deployer, network, accounts) {
 
     // Initialize idle markets in controller
     const controllerImpl = await IdleController.at(controller.address);
+    await controllerImpl._setIdleAddress(idle.address, {from: creator});
+    console.log('Controller _setIdleAddress initialized');
     await controllerImpl._setPriceOracle(oracle.address, {from: creator});
     console.log('Controller _setPriceOracle initialized');
     await controllerImpl._supportMarkets(allIdleTokens, {from: creator});
@@ -163,6 +172,8 @@ module.exports = async function (deployer, network, accounts) {
     console.log('Controller _addIdleMarkets initialized');
     await controllerImpl._setIdleRate(idleRatePerBlock, {from: creator});
     console.log('Controller _setIdleRate: Set IDLE rate per block distributed');
+    await controllerImpl.claimIdle(allIdleTokens, allIdleTokens, {from: creator});
+    console.log('Controller claimIdle: first claim as initialization');
 
     // This contract drips at a fixed rate
     const reserve = await Reservoir.new( // No owner
@@ -223,6 +234,9 @@ module.exports = async function (deployer, network, accounts) {
       {from: creator} // creator have no power at the end
     );
     console.log('Vesting contracts deployed');
+
+    const currVotesFounderInit = await idle.getCurrentVotes(founders[0].address);
+    console.log('currVotesFounderInit', currVotesFounderInit.toString());
 
     // Creator should have no IDLE at the end
     const creatorBalance = await idle.balanceOf(creator, {from: creator});
