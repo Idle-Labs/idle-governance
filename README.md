@@ -18,3 +18,17 @@ then
 ```
 truffle test
 ```
+
+### Migrations with mainnet fork
+To run migrations in mainnet first spin up a ganache-cli instance with fork flag
+using the script below (remember to update your infura key inside)
+
+```
+./start-fork-public.sh
+```
+
+then
+
+```
+truffle migrate --f 2 --to 2 --network local
+```

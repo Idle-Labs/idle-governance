@@ -282,6 +282,60 @@ module.exports = async function (deployer, network, accounts) {
     // Renounce ownership of Governor and make it decentralized
     await gov.__abdicate({from: creator});
     console.log('Governor has now no guardian and governance is completely decentralized');
+
+  // ##################################
+  // Move this to another migration ###
+  // ##################################
+
+  console.log('##################################');
+  console.log('##################################');
+
+  const bigLog = (txt, val) => {
+    console.log(txt, BNify(val).div(ONE).toString());
+  };
+
+  const logIdleState = async (token) => {
+    const idleDAISupplyStatePre = await controllerImpl.idleSupplyState(token);
+    console.log(`######### Log Block ${idleDAISupplyStatePre.block.toString()} #############`);
+    const controllerBal = await idle.balanceOf(controller.address);
+    bigLog('## IDLE controller bal', controllerBal);
+    const idleDaiIDLEBal = await idle.balanceOf(token);
+    bigLog('## IDLE idleDAI bal', idleDaiIDLEBal);
+
+    const daiSpeedPre = await controllerImpl.idleSpeeds(token);
+    const idleAccruedDaiPre = await controllerImpl.idleAccrued(token);
+    const idleSupplierIndex = await controllerImpl.idleSupplierIndex(token, token);
+
+    // bigLog('idleDAI speed', daiSpeedPre);
+    bigLog('idleDAI IDLE accrued', idleAccruedDaiPre);
+    bigLog('supplyState index', idleDAISupplyStatePre.index);
+    bigLog('supplier index', idleSupplierIndex);
+    console.log('######### End log #############');
+  };
+
+  await logIdleState(allIdleTokens[0]);
+  await advanceBlocks(50);
+  // Reservoir
+  await reserve.drip({from: creator});
+  console.log('dripped from reservoir');
+  await logIdleState(allIdleTokens[0]);
+
+  // TODO test this with 2 idleTokens
+  await controllerImpl.claimIdle(allIdleTokens, allIdleTokens, {from: creator});
+  console.log('claimed tokens');
+  await logIdleState(allIdleTokens[0]);
+
+  const founder = founders[0].address;
+  console.log('founder', founder);
+
+  // Create proposal to update oracle updateFeedUSD (with enough votes)
+  const founderVesting = await vesterFactory.vestingContracts(founder);
+  const vesterFounder = await Vester.at(founderVesting);
+  bigLog('bal of vesting contract', await idle.balanceOf(vesterFounder.address));
+  await idle.delegate(founder, {from: founder});
+  console.log('delegates founder to founder');
+  await vesterFounder.setDelegate(founder, {from: founder});
+  console.log('delegates vesterFounder to founder');
   }).catch(err => {
     console.log(err);
     throw err;
