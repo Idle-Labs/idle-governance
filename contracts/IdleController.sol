@@ -181,6 +181,7 @@ contract IdleController is IdleControllerStorage, Exponential {
 
   function _setPriceOracle(address priceOracle_) public {
       require(msg.sender == admin, "only admin can change price oracle");
+      require(priceOracle_ != address(0), "address is 0");
       address oldOracle = address(oracle);
       oracle = PriceOracle(priceOracle_);
       emit NewIdleOracle(oldOracle, priceOracle_);
