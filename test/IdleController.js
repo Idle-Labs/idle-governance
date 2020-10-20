@@ -141,4 +141,21 @@ contract('IdleController', function ([_, creator, nonOwner, someone, foo, manage
     (await this.idleTroll.idleSpeeds(this.idleToken2.address)).should.be.bignumber.equal(BNify('250000000000000000'));
     (await this.idleTroll.idleSpeeds(this.idleToken3.address)).should.be.bignumber.equal(BNify('250000000000000000'));
   });
+
+  it('_resetMarkets', async function () {
+    await this.idleToken2.setTokenPrice(BNify('1').mul(this.one), {from: creator});
+    await this.idleToken2.setApr(BNify('2').mul(this.one), {from: creator});
+    await this.idleToken2.addTotalSupply(BNify('1').mul(this.one));
+    await this.oracle.setLatestAnswer(this.idleToken2.address, BNify('1').mul(this.one));
+
+    await this.idleToken3.setToken(this.token8.address, {from: creator});
+
+    await this.idleToken3.setTokenPrice(this.one8, {from: creator});
+    await this.idleToken3.setApr(BNify('2').mul(this.one), {from: creator});
+    await this.idleToken3.addTotalSupply(BNify('1').mul(this.one));
+    await this.oracle.setLatestAnswer(this.idleToken3.address, BNify('1').mul(this.one));
+
+    await this.idleTroll._resetMarkets({ from: creator });
+    await this.idleTroll.refreshIdleSpeeds({ from: creator });
+  });
 });

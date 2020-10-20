@@ -282,6 +282,25 @@ contract IdleController is IdleControllerStorage, Exponential {
   }
 
   /**
+   * @notice Remove all markets from idleMarkets. This should only be called in case of emergency
+   */
+  function _resetMarkets() public returns (uint256) {
+      require(msg.sender == admin, "only admin can change idle markets");
+      address idleToken;
+      for (uint256 j = 0; j < allMarkets.length; j++) {
+          idleToken = address(allMarkets[j]);
+          markets[idleToken] = Market({isListed: false, isIdled: false});
+          idleSupplyState[idleToken] = IdleMarketState({index: 0, block: 0});
+          idleSupplierIndex[idleToken][idleToken] = 0;
+          idleAccrued[idleToken] = 0;
+      }
+
+      delete allMarkets;
+
+      return 0;
+  }
+
+  /**
    * @notice Return all of the markets
    * @dev The automatic getter may be used to access an individual market.
    * @return The list of market addresses
