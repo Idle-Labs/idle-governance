@@ -67,7 +67,7 @@ contract IdleController is IdleControllerStorage, Exponential {
           IdleToken idleToken = allMarkets_[i];
           if (markets[address(idleToken)].isIdled) {
               uint256 tokenDecimals = ERC20(idleToken.token()).decimals();
-              Exp memory tokenPriceNorm = mul_(Exp({mantissa: idleToken.tokenPrice()}), 10**(18-tokenDecimals)); // norm to 1e18 always
+              Exp memory tokenPriceNorm = mul_(Exp({mantissa: idleToken.tokenPrice()}), 10**(sub256(18, tokenDecimals))); // norm to 1e18 always
               Exp memory tokenSupply = Exp({mantissa: idleToken.totalSupply()}); // 1e18 always
               Exp memory tvl = mul_(tokenPriceNorm, tokenSupply); // 1e18
               Exp memory assetPrice = Exp({mantissa: oracle.getUnderlyingPrice(address(idleToken))}); // Must return a normalized price to 1e18
@@ -308,6 +308,11 @@ contract IdleController is IdleControllerStorage, Exponential {
    */
   function getAllMarkets() public view returns (IdleToken[] memory) {
       return allMarkets;
+  }
+
+  function sub256(uint256 a, uint256 b) internal pure returns (uint) {
+      require(b <= a, "subtraction underflow");
+      return a - b;
   }
 }
 
