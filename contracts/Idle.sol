@@ -142,6 +142,35 @@ contract Idle is ERC20Permit {
     }
 
     /**
+     * ERC20 modified transferFrom that also update the avgPrice paid for the recipient and
+     * updates user gov idx
+     *
+     * @param sender : sender account
+     * @param recipient : recipient account
+     * @param amount : value to transfer
+     * @return : flag whether transfer was successful or not
+     */
+    function transferFrom(address sender, address recipient, uint256 amount) public override returns (bool) {
+      _transfer(sender, recipient, amount);
+      _approve(sender, msg.sender, allowance(sender, msg.sender).sub(amount, "ERC20: transfer amount exceeds allowance"));
+      _moveDelegates(_delegates[sender], _delegates[recipient], amount);
+      return true;
+    }
+
+    /**
+     * ERC20 modified transfer that also update the delegates
+     *
+     * @param recipient : recipient account
+     * @param amount : value to transfer
+     * @return : flag whether transfer was successful or not
+     */
+    function transfer(address recipient, uint256 amount) public override returns (bool) {
+      _transfer(msg.sender, recipient, amount);
+      _moveDelegates(_delegates[msg.sender], _delegates[recipient], amount);
+      return true;
+    }
+
+    /**
      * @notice Determine the prior number of votes for an account as of a block number
      * @dev Block number must be a finalized block or else this function will revert to prevent misinformation.
      * @param account The address of the account to check
