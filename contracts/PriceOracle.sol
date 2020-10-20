@@ -55,7 +55,7 @@ contract PriceOracle is Ownable {
     uint256 cTokenNAV = _ctoken.exchangeRateStored().mul(IERC20(_cToken).totalSupply()).div(ONE_18);
     // how much costs 1COMP in token (1e(_token.decimals()))
     uint256 compUnderlyingPrice = getPriceToken(COMP, _token);
-    return compSpeeds.mul(compUnderlyingPrice).mul(blocksPerYear).div(cTokenNAV).mul(100);
+    return compSpeeds.mul(compUnderlyingPrice).mul(blocksPerYear).mul(100).div(cTokenNAV);
   }
 
   // #### internal
