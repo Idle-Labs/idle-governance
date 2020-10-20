@@ -113,10 +113,9 @@ contract IdleController is IdleControllerStorage, Exponential {
   /**
    * @notice Calculate IDLE accrued by a supplier and possibly transfer it to them
    * @param idleToken The market in which the supplier is interacting
-   * @param supplier The address of the supplier to distribute IDLE to
    */
-  function distributeIdle(address idleToken, address supplier, bool distributeAll) internal {
-      require(supplier == idleToken, '!Authorized');
+  function distributeIdle(address idleToken, bool distributeAll) internal {
+      address supplier = idleToken;
       IdleMarketState storage supplyState = idleSupplyState[idleToken];
       Double memory supplyIndex = Double({mantissa: supplyState.index});
       Double memory supplierIndex = Double({mantissa: idleSupplierIndex[idleToken][supplier]});
@@ -155,17 +154,14 @@ contract IdleController is IdleControllerStorage, Exponential {
 
   /**
    * @notice Claim all idle accrued by the holders
-   * @param holders The addresses to claim IDLE for
    * @param idleTokens The list of markets to claim IDLE in
    */
-  function claimIdle(address[] memory holders, IdleToken[] memory idleTokens) public {
+  function claimIdle(address[] memory, IdleToken[] memory idleTokens) public {
       for (uint256 i = 0; i < idleTokens.length; i++) {
           IdleToken idleToken = idleTokens[i];
           require(markets[address(idleToken)].isListed, "market must be listed");
           updateIdleSupplyIndex(address(idleToken));
-          for (uint256 j = 0; j < holders.length; j++) {
-              distributeIdle(address(idleToken), holders[j], true);
-          }
+          distributeIdle(address(idleToken), true);
       }
   }
 
