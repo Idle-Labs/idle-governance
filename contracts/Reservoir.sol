@@ -25,18 +25,26 @@ contract Reservoir {
   /// @notice Amount that has already been dripped
   uint public dripped;
 
+  /// @notice timestamp for bonus end
+  uint public bonusEnd;
+
+  /// @notice bonus multiplier
+  uint public bonusMultiplier;
+
   /**
     * @notice Constructs a Reservoir
     * @param dripRate_ Numer of tokens per block to drip
     * @param token_ The token to drip
     * @param target_ The recipient of dripped tokens
     */
-  constructor(uint dripRate_, address token_, address target_) public {
+  constructor(uint dripRate_, address token_, address target_, uint256 _bonusMultiplier) public {
     token = ERC20(token_);
     dripStart = block.number;
     dripRate = dripRate_;
     target = target_;
     dripped = 0;
+    bonusEnd = now + 30 days;
+    bonusMultiplier = _bonusMultiplier;
   }
 
   /**
@@ -62,7 +70,7 @@ contract Reservoir {
 
     // Finally, write new `dripped` value and transfer tokens to target
     dripped = drippedNext_;
-    token_.transfer(target_, toDrip_);
+    token_.transfer(target_, block.timestamp < bonusEnd ? mul(toDrip_, bonusMultiplier, "dripBonus overflow") : toDrip_);
 
     return toDrip_;
   }

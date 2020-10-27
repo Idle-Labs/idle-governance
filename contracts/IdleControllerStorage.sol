@@ -65,4 +65,10 @@ contract IdleControllerStorage is UnitrollerAdminStorage {
 
   /// @notice IDLE governance token address
   address public idleAddress;
+
+  /// @notice Itimestamp to limit bonus distribution on the first month
+  uint256 public bonusEnd;
+
+  /// @notice timestamp for bonus end
+  uint256 public bonusMultiplier;
 }

@@ -81,7 +81,8 @@ contract IdleController is IdleControllerStorage, Exponential {
 
       for (uint256 i = 0; i < allMarkets_.length; i++) {
           IdleToken idleToken = allMarkets[i];
-          uint256 newSpeed = totalUtility.mantissa > 0 ? mul_(idleRate, div_(utilities[i], totalUtility)) : 0;
+          uint256 idleRate_ = block.timestamp < bonusEnd ? mul_(idleRate, bonusMultiplier) : idleRate;
+          uint256 newSpeed = totalUtility.mantissa > 0 ? mul_(idleRate_, div_(utilities[i], totalUtility)) : 0;
           idleSpeeds[address(idleToken)] = newSpeed;
           emit IdleSpeedUpdated(address(idleToken), newSpeed);
       }
@@ -280,6 +281,13 @@ contract IdleController is IdleControllerStorage, Exponential {
     require(_idleAddress != address(0), "address is 0");
 
     idleAddress = _idleAddress;
+  }
+
+  function _setBonusDistribution(uint256 _bonusMultiplier) external {
+    require(msg.sender == admin, "Not authorized");
+    require(bonusEnd == 0, "already initialized");
+    bonusEnd = now + 30 days;
+    bonusMultiplier = _bonusMultiplier;
   }
 
   /**

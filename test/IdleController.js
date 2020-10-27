@@ -1,4 +1,4 @@
-const { expectEvent, singletons, constants, BN, expectRevert } = require('@openzeppelin/test-helpers');
+const { expectEvent, singletons, constants, BN, expectRevert, time } = require('@openzeppelin/test-helpers');
 
 const PriceOracleMock = artifacts.require('PriceOracleMock');
 const IdleController = artifacts.require('IdleController');
@@ -57,6 +57,8 @@ contract('IdleController', function ([_, creator, nonOwner, someone, foo, manage
   });
 
   it('refreshIdleSpeeds with IDLE equally splitted', async function () {
+    await this.idleTroll._setBonusDistribution(BNify('1'), {from: creator}); // set 0X initial bonus
+
     await this.idleToken2.addTotalSupply(BNify('1').mul(this.one));
     await this.idleToken3.addTotalSupply(BNify('1').mul(this.one));
 
@@ -67,6 +69,8 @@ contract('IdleController', function ([_, creator, nonOwner, someone, foo, manage
   });
 
   it('refreshIdleSpeeds with different supply', async function () {
+    await this.idleTroll._setBonusDistribution(BNify('1'), {from: creator}); // set 0X initial bonus
+
     await this.idleToken2.setTokenPrice(this.one, {from: creator});
     await this.idleToken2.setApr(BNify('2').mul(this.one), {from: creator});
     await this.idleToken2.addTotalSupply(BNify('4').mul(this.one));
@@ -81,6 +85,8 @@ contract('IdleController', function ([_, creator, nonOwner, someone, foo, manage
   });
 
   it('refreshIdleSpeeds with different price', async function () {
+    await this.idleTroll._setBonusDistribution(BNify('1'), {from: creator}); // set 0X initial bonus
+
     await this.idleToken2.setTokenPrice(BNify('4').mul(this.one), {from: creator});
     await this.idleToken2.setApr(BNify('2').mul(this.one), {from: creator});
     await this.idleToken2.addTotalSupply(BNify('1').mul(this.one));
@@ -95,6 +101,8 @@ contract('IdleController', function ([_, creator, nonOwner, someone, foo, manage
   });
 
   it('refreshIdleSpeeds with different aprs', async function () {
+    await this.idleTroll._setBonusDistribution(BNify('1'), {from: creator}); // set 0X initial bonus
+
     await this.idleToken2.setTokenPrice(BNify('1').mul(this.one), {from: creator});
     await this.idleToken2.setApr(BNify('8').mul(this.one), {from: creator});
     await this.idleToken2.addTotalSupply(BNify('1').mul(this.one));
@@ -109,6 +117,8 @@ contract('IdleController', function ([_, creator, nonOwner, someone, foo, manage
   });
 
   it('refreshIdleSpeeds with different asset prices', async function () {
+    await this.idleTroll._setBonusDistribution(BNify('1'), {from: creator}); // set 0X initial bonus
+
     await this.idleToken2.setTokenPrice(BNify('1').mul(this.one), {from: creator});
     await this.idleToken2.setApr(BNify('2').mul(this.one), {from: creator});
     await this.idleToken2.addTotalSupply(BNify('1').mul(this.one));
@@ -125,6 +135,8 @@ contract('IdleController', function ([_, creator, nonOwner, someone, foo, manage
   });
 
   it('refreshIdleSpeeds with tokens with different decimals', async function () {
+    await this.idleTroll._setBonusDistribution(BNify('1'), {from: creator}); // set 0X initial bonus
+
     await this.idleToken2.setTokenPrice(BNify('1').mul(this.one), {from: creator});
     await this.idleToken2.setApr(BNify('2').mul(this.one), {from: creator});
     await this.idleToken2.addTotalSupply(BNify('1').mul(this.one));
@@ -143,6 +155,7 @@ contract('IdleController', function ([_, creator, nonOwner, someone, foo, manage
   });
 
   it('_resetMarkets', async function () {
+    await this.idleTroll._setBonusDistribution(BNify('1'), {from: creator}); // set 0X initial bonus
     await this.idleToken2.setTokenPrice(BNify('1').mul(this.one), {from: creator});
     await this.idleToken2.setApr(BNify('2').mul(this.one), {from: creator});
     await this.idleToken2.addTotalSupply(BNify('1').mul(this.one));
@@ -157,5 +170,43 @@ contract('IdleController', function ([_, creator, nonOwner, someone, foo, manage
 
     await this.idleTroll._resetMarkets({ from: creator });
     await this.idleTroll.refreshIdleSpeeds({ from: creator });
+  });
+
+  it('refreshIdleSpeeds with different aprs and +1X initial Bonus', async function () {
+    await this.idleTroll._setBonusDistribution(BNify('2'), {from: creator}); // set +1X initial bonus
+
+    await this.idleToken2.setTokenPrice(BNify('1').mul(this.one), {from: creator});
+    await this.idleToken2.setApr(BNify('8').mul(this.one), {from: creator});
+    await this.idleToken2.addTotalSupply(BNify('1').mul(this.one));
+
+    await this.idleToken3.setTokenPrice(this.one, {from: creator});
+    await this.idleToken3.setApr(BNify('2').mul(this.one), {from: creator});
+    await this.idleToken3.addTotalSupply(BNify('1').mul(this.one));
+
+    await this.idleTroll.refreshIdleSpeeds({ from: creator });
+    (await this.idleTroll.idleSpeeds(this.idleToken2.address)).should.be.bignumber.equal(BNify('800000000000000000'));
+    (await this.idleTroll.idleSpeeds(this.idleToken3.address)).should.be.bignumber.equal(BNify('200000000000000000'));
+  });
+
+  it('refreshIdleSpeeds with different aprs after Bonus +1X ended', async function () {
+    await this.idleTroll._setBonusDistribution(BNify('2'), {from: creator}); // set +1X initial bonus
+
+    await this.idleToken2.setTokenPrice(BNify('1').mul(this.one), {from: creator});
+    await this.idleToken2.setApr(BNify('8').mul(this.one), {from: creator});
+    await this.idleToken2.addTotalSupply(BNify('1').mul(this.one));
+
+    await this.idleToken3.setTokenPrice(this.one, {from: creator});
+    await this.idleToken3.setApr(BNify('2').mul(this.one), {from: creator});
+    await this.idleToken3.addTotalSupply(BNify('1').mul(this.one));
+
+    await this.idleTroll.refreshIdleSpeeds({ from: creator });
+    (await this.idleTroll.idleSpeeds(this.idleToken2.address)).should.be.bignumber.equal(BNify('800000000000000000'));
+    (await this.idleTroll.idleSpeeds(this.idleToken3.address)).should.be.bignumber.equal(BNify('200000000000000000'));
+
+    await time.increase('5184000'); // advance time 60 days in seconds
+
+    await this.idleTroll.refreshIdleSpeeds({ from: creator });
+    (await this.idleTroll.idleSpeeds(this.idleToken2.address)).should.be.bignumber.equal(BNify('400000000000000000'));
+    (await this.idleTroll.idleSpeeds(this.idleToken3.address)).should.be.bignumber.equal(BNify('100000000000000000'));
   });
 });
