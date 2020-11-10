@@ -1,4 +1,6 @@
 const GovernorAlpha = artifacts.require("GovernorAlpha");
+const IdleController = artifacts.require("IdleController");
+const Idle = artifacts.require("Idle");
 const {
   BNify, ONE, allIdleTokens, creator
 } = require('./governance_params.js');
@@ -9,6 +11,9 @@ module.exports = async function (deployer, network, accounts) {
   }
   await deployer.then(async () => {
     // TODO check
+    const controllerImpl = await IdleController.at('0x275DA8e61ea8E02d51EDd8d0DC5c0E62b4CDB0BE');
+    const controller = {address: controllerImpl.address};
+    const idle = await Idle.at('0x875773784Af8135eA0ef43b5a374AaD105c5D39e');
     const gov = await GovernorAlpha.at('0x2256b25CFC8E35c3135664FD03E77595042fe31B');
 
     const bigLog = (txt, val) => {
