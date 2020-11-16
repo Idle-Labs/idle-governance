@@ -105,9 +105,9 @@ module.exports = async function (deployer, network, accounts) {
     await logIdleState(allIdleTokens);
 
     // Initialize IDLE accrual in IdleController
-    await controllerImpl._addIdleMarkets(allIdleTokens, {from: creator});
+    await controllerImpl._addIdleMarkets(allIdleTokens, {from: creator, gas: BNify('3700000')});
     console.log('Controller _addIdleMarkets initialized');
-    await controllerImpl._setIdleRate(idleRatePerBlock, {from: creator});
+    await controllerImpl._setIdleRate(idleRatePerBlock, {from: creator, gas: BNify('3700000')});
     console.log('Controller _setIdleRate: Set IDLE rate per block distributed');
     await controllerImpl._setBonusDistribution(dripRateMultiplier, {from: creator});
     console.log('Controller _setBonusDistribution: Set IDLE rate per block distributed for the first month as bonus');
@@ -137,7 +137,7 @@ module.exports = async function (deployer, network, accounts) {
     console.log('controller executeTransaction setDelay');
 
     // Initialize data with first claim
-    await controllerImpl.claimIdle(allIdleTokens, allIdleTokens, {from: creator});
+    await controllerImpl.claimIdle(allIdleTokens, allIdleTokens, {from: creator, gas: BNify('900000')});
     console.log('Controller claimIdle: first claim as initialization');
 
     await reserve.drip({from: creator});

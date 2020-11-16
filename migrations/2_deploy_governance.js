@@ -66,13 +66,12 @@ module.exports = async function (deployer, network, accounts) {
 
   const nextNonce = await web3.eth.getTransactionCount(creator);
   console.log('Next nonce', nextNonce);
-
   await deployer.then(async () => {
     // Full supply (13M) to creator, no owner
-    const idle = await Idle.new({from: creator});
+    const idle = await Idle.new({from: creator, gas: BNify('2500000')});
     console.log('IDLE:', idle.address);
 
-    const oracle = await PriceOracle.new({from: creator}); // owner will be transferred to Timelock
+    const oracle = await PriceOracle.new({from: creator, gas: BNify('1500000')}); // owner will be transferred to Timelock
     console.log('PriceOracle:', oracle.address);
 
     const nextAddrGovernor = getNextAddress(creator, BNify(nextNonce).plus(BNify('3')));
@@ -82,7 +81,7 @@ module.exports = async function (deployer, network, accounts) {
       creator, // admin, at the end should be Governor
       BNify('0'), // this will become timelockDelay
       nextAddrGovernor, // pendingAdmin
-      {from: creator}
+      {from: creator, gas: BNify('2000000')}
     );
     console.log('Timelock:', timelock.address);
 
@@ -91,12 +90,12 @@ module.exports = async function (deployer, network, accounts) {
       idle.address,
       creator, // guardian, at the end this should be addr0 after abdicating after 1 month
       // guardian can cancel a queued proposal
-      {from: creator}
+      {from: creator, gas: BNify('4000000')}
     );
     console.log('Governance:', gov.address);
 
     const controllerImplementation = await IdleController.new(
-      {from: creator}
+      {from: creator, gas: BNify('3000000')}
     );
     console.log('Controller implementation:', controllerImplementation.address);
     const controller = await Unitroller.new(
@@ -125,17 +124,17 @@ module.exports = async function (deployer, network, accounts) {
     console.log('Reserve:', reserve.address);
 
     const feeTreasury = await GovernableFund.new( // owner will be timelock
-      {from: creator}
+      {from: creator, gas: BNify('1200000')}
     );
     console.log('FeeTreasury:', feeTreasury.address);
 
     const longLPFund = await GovernableFund.new( // owner will be timelock
-      {from: creator}
+      {from: creator, gas: BNify('1200000')}
     );
     console.log('LongLPFund:', longLPFund.address);
 
     const ecosystem = await GovernableFund.new( // owner will be timelock
-      {from: creator}
+      {from: creator, gas: BNify('1200000')}
     );
     console.log('EcosystemFund:', ecosystem.address);
 
@@ -144,7 +143,7 @@ module.exports = async function (deployer, network, accounts) {
       idle.address,
       ecosystem.address,
       earlyLPDeadline,
-      {from: creator}
+      {from: creator, gas: BNify('1200000')}
     );
     console.log('EarlyRewards:', early.address);
 
@@ -153,15 +152,15 @@ module.exports = async function (deployer, network, accounts) {
     const firstHalfAmounts = earlyUsersAmounts.slice(0, parseInt(earlyUsersAmounts.length/2));
     const secondHalfAmounts = earlyUsersAmounts.slice(parseInt(earlyUsersAmounts.length/2), earlyUsersAmounts.length);
 
-    await early.setRewards(firstHalfAddr, firstHalfAmounts, {from: creator});
+    await early.setRewards(firstHalfAddr, firstHalfAmounts, {from: creator, gas: BNify('3500000')});
     console.log('early rewards set first half');
-    await early.setRewards(secondHalfAddr, secondHalfAmounts, {from: creator});
+    await early.setRewards(secondHalfAddr, secondHalfAmounts, {from: creator, gas: BNify('3500000')});
     console.log('early rewards set second half');
     await early.stopSettingRewards({from: creator});
     console.log('stop early rewards setting');
 
     // Factory used to deploy one Vester contract for each of the investors and team members
-    const vesterFactory = await VesterFactory.new(idle.address, {from: creator});
+    const vesterFactory = await VesterFactory.new(idle.address, {from: creator, gas: BNify('2000000')});
     console.log('VesterFactory:', vesterFactory.address);
 
     await idle.transfer(early.address, earlyRewardsShare, {from: creator});
@@ -183,7 +182,7 @@ module.exports = async function (deployer, network, accounts) {
       investors.map(i => i.amount),
       [foundersCliff, foundersEnd],
       [investorsCliff, investorsEnd],
-      {from: creator} // creator have no power at the end
+      {from: creator, gas: BNify('3000000')} // creator have no power at the end
     );
     console.log('Vesting contracts deployed');
 
