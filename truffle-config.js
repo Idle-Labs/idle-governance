@@ -14,7 +14,7 @@ const ledgerOptions = {
 };
 
 module.exports = {
-  plugins: [],
+  plugins: ["truffle-plugin-verify"],
   // See <http://truffleframework.com/docs/advanced/configuration>
   // to customize your Truffle configuration!
   api_keys: {
@@ -35,8 +35,12 @@ module.exports = {
     kovan: {
       provider: () => new HDWalletProvider(mnemonic, 'https://kovan.infura.io/v3/' + process.env.INFURA_KEY),
       // provider: () => new LedgerWalletProvider({...ledgerOptions, networkId: 42}, 'https://kovan.infura.io/v3/' + process.env.INFURA_KEY),
+      // provider: () => {
+      //   console.log(HDWalletProvider)
+      //   return new HDWalletProvider.TrezorProvider("m/44'/1'/0'/0/0", 'https://kovan.infura.io/v3' + process.env.INFURA_KEY)
+      // },
       network_id: '42',
-      gas: 3500000,
+      gas: 700000,
       gasPrice: 5 * 1e9, // 5 gwei
       skipDryRun: true
     },
@@ -45,8 +49,8 @@ module.exports = {
       // provider: () => new HDWalletProvider(mnemonic, "https://mainnet.infura.io/v3/" + process.env.INFURA_KEY),
       provider: () => new LedgerWalletProvider({...ledgerOptions, networkId: 1}, 'https://mainnet.infura.io/v3/' + process.env.INFURA_KEY),
       network_id: 1,
-      gas: 300000,
-      gasPrice: 75 * 1e9, // 90 gwei
+      gas: 700000,
+      gasPrice: 35 * 1e9, // 90 gwei
       skipDryRun: true
     },
     local: {
@@ -56,7 +60,7 @@ module.exports = {
       port: 8545,
       network_id: '*',
       skipDryRun: true,
-      // gas: 300000,
+      gas: 700000,
       gasPrice: 0x01
     },
     // test: {
