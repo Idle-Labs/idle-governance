@@ -164,27 +164,61 @@ module.exports = async function (deployer, network, accounts) {
     console.log('VesterFactory:', vesterFactory.address);
 
     await idle.transfer(early.address, earlyRewardsShare, {from: creator});
-    console.log('Sent 2% to early lps rewards contract');
+    console.log('Sent funds to early lps rewards contract');
     await idle.transfer(reserve.address, lpTotalShare, {from: creator});
-    console.log('Sent 38% to reservoir for LP rewards');
+    console.log('Sent funds to reservoir for LP rewards');
     await idle.transfer(ecosystem.address, ecosystemFundShare, {from: creator});
-    console.log('Sent 11% to ecosys fund contract');
+    console.log('Sent funds to ecosys fund contract');
     await idle.transfer(vesterFactory.address, founderAndInvestorsShare, {from: creator});
-    console.log('Sent 49% to Vester Factory for vesting contracts fund contract');
+    console.log('Sent funds to Vester Factory for vesting contracts fund contract');
     await idle.transfer(longLPFund.address, longTermLPRewardsShare, {from: creator});
     console.log('Sent funds to Long term lp contract');
 
     await vesterFactory.deployVestingContracts(
       beginVesting,
       founders.map(f => f.address),
-      investors.map(i => i.address),
+      [],
       founders.map(f => f.amount),
-      investors.map(i => i.amount),
+      [],
       [foundersCliff, foundersEnd],
-      [investorsCliff, investorsEnd],
+      [],
       {from: creator, gas: BNify('3000000')} // creator have no power at the end
     );
-    console.log('Vesting contracts deployed');
+    console.log('Vesting contracts founders deployed');
+
+    const investorsLen = investors.length;
+    const firstHalfInvestors = investors.slice(0, parseInt(investorsLen/2));
+    const secondHalfInvestors = investors.slice(parseInt(investorsLen/2), investorsLen);
+
+    await vesterFactory.deployVestingContracts(
+      beginVesting,
+      [],
+      firstHalfInvestors.map(i => i.address),
+      [],
+      firstHalfInvestors.map(i => i.amount),
+      [],
+      [investorsCliff, investorsEnd],
+      {from: creator, gas: BNify('4500000')} // creator have no power at the end
+    );
+    console.log('Vesting contracts investors first batch deployed');
+
+    await vesterFactory.deployVestingContracts(
+      beginVesting,
+      [],
+      secondHalfInvestors.map(i => i.address),
+      [],
+      secondHalfInvestors.map(i => i.amount),
+      [],
+      [investorsCliff, investorsEnd],
+      {from: creator, gas: BNify('5000000')} // creator have no power at the end
+    );
+    console.log('Vesting contracts investors second batch deployed');
+
+    const investorsAndTeam = team.concat(investors);
+    for (var i = 0; i < investorsAndTeam.length; i++) {
+      const currAddr = investorsAndTeam[i].address;
+      console.log(`${currAddr} -> vesting contract ${await vesterFactory.vestingContracts(currAddr)}`);
+    }
 
     const currVotesFounderInit = await idle.getCurrentVotes(founders[0].address);
     console.log('currVotesFounderInit', currVotesFounderInit.toString());
