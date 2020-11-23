@@ -214,7 +214,7 @@ module.exports = async function (deployer, network, accounts) {
     );
     console.log('Vesting contracts investors second batch deployed');
 
-    const investorsAndTeam = team.concat(investors);
+    const investorsAndTeam = founders.concat(investors);
     for (var i = 0; i < investorsAndTeam.length; i++) {
       const currAddr = investorsAndTeam[i].address;
       console.log(`${currAddr} -> vesting contract ${await vesterFactory.vestingContracts(currAddr)}`);

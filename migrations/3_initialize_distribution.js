@@ -102,8 +102,6 @@ module.exports = async function (deployer, network, accounts) {
       return console.log('check addresses');
     }
 
-    await logIdleState(allIdleTokens);
-
     // Initialize IDLE accrual in IdleController
     await controllerImpl._addIdleMarkets(allIdleTokens, {from: creator, gas: BNify('3700000')});
     console.log('Controller _addIdleMarkets initialized');
