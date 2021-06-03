@@ -53,6 +53,24 @@ module.exports = {
       gasPrice: 35 * 1e9, // 90 gwei
       skipDryRun: true
     },
+    mumbai: {
+      provider: () => new HDWalletProvider([process.env.MUMBAI_PRIVATE_KEY], "https://rpc-mumbai.maticvigil.com/v1/" + process.env.POLYGON_API_KEY),
+      // provider: () => new LedgerWalletProvider({...ledgerOptions, networkId: 80001}, 'https://rpc-mumbai.maticvigil.com/v1' + process.env.POLYGON_API_KEY),
+      network_id: 80001,
+      gas: 8500000,
+      // gas: 250000,
+      gasPrice: 5 * 1e9, // 90 gwei
+      skipDryRun: true
+    },
+    polygon: {
+      provider: () => new HDWalletProvider([process.env.POLYGON_PRIVATE_KEY], "https://rpc-mainnet.maticvigil.com/v1/" + process.env.POLYGON_API_KEY),
+      // provider: () => new LedgerWalletProvider({...ledgerOptions, networkId: 137}, 'https://rpc-mainnet.maticvigil.com/v1/' + process.env.POLYGON_API_KEY),
+      network_id: 137,
+      gas: 2000000,
+      // gas: 250000,
+      gasPrice: 1 * 1e9, // 90 gwei
+      skipDryRun: true
+    },
     local: {
       // provider: () => new HDWalletProvider(mnemonic, 'http://127.0.0.1:8545'),
       // provider: () => new LedgerWalletProvider({...ledgerOptions, networkId: 1}, 'http://127.0.0.1:8545'),
@@ -60,7 +78,7 @@ module.exports = {
       port: 8545,
       network_id: '*',
       skipDryRun: true,
-      gas: 700000,
+      gas: 3000000,
       gasPrice: 0x01
     },
     // test: {
