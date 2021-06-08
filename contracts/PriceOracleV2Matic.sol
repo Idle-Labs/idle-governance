@@ -15,7 +15,7 @@ contract PriceOracleV2Matic is Ownable {
   using SafeMath for uint256;
 
   uint256 constant private ONE_18 = 10**18;
-  address constant public WETH = 0x8cc8538d60901d19692F5ba22684732Bc28F54A3;
+  address constant public WETH = 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619;
   address constant public COMP = 0x8505b9d2254A7Ae468c0E9dd10Ccea3A837aef5c;
   address constant public WBTC = 0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6;
   address constant public DAI = 0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063;
