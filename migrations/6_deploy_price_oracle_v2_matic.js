@@ -11,12 +11,12 @@ const addresses = {
   aDAIV2:{
     'live': '0x028171bCA77440897B824Ca71D1c56caC55b68A3',
     'mumbai': '0x639cB7b21ee2161DF9c882483C9D55c90c20Ca3e',
-    'polygon': '0x27F8D03b3a2196956ED754baDc28D73be8830A6e',
+    'matic': '0x27F8D03b3a2196956ED754baDc28D73be8830A6e',
   },
   DAI: {
     'live': '0x6B175474E89094C44Da98b954EedeAC495271d0F',
     'mumbai': '0x001B3B4d0F3714Ca98ba10F6042DaEbF0B1B7b6F',
-    'polygon': '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
+    'matic': '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
   },
 };
 

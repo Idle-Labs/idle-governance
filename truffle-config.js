@@ -46,7 +46,7 @@ module.exports = {
     },
     // main ethereum network(mainnet)
     live: {
-      // provider: () => new HDWalletProvider(mnemonic, "https://mainnet.infura.io/v3/" + process.env.INFURA_KEY),
+      // provider: () => new HDWalletProvider(mnemonic, "https://eth-mainnet.alchemyapi.io/v2/" + process.env.IDLE_ALCHEMY_KEY),
       provider: () => new LedgerWalletProvider({...ledgerOptions, networkId: 1}, 'https://mainnet.infura.io/v3/' + process.env.INFURA_KEY),
       network_id: 1,
       gas: 700000,
@@ -62,7 +62,7 @@ module.exports = {
       gasPrice: 5 * 1e9, // 90 gwei
       skipDryRun: true
     },
-    polygon: {
+    matic: {
       provider: () => new HDWalletProvider([process.env.POLYGON_PRIVATE_KEY], "https://rpc-mainnet.maticvigil.com/v1/" + process.env.POLYGON_API_KEY),
       // provider: () => new LedgerWalletProvider({...ledgerOptions, networkId: 137}, 'https://rpc-mainnet.maticvigil.com/v1/' + process.env.POLYGON_API_KEY),
       network_id: 137,
