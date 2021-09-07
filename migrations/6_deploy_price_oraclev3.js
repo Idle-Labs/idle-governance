@@ -19,6 +19,7 @@ module.exports = async function (deployer, network, accounts) {
     wbtc: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
     dai: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
     stkAave: "0x4da27a545c0c5B758a6BA100e3a049001de870f5",
+    fei: "0x956f47f50a910163d8bf957cf5846d573e7f87ca",
   }
 
   const tokensETH = {
@@ -29,6 +30,8 @@ module.exports = async function (deployer, network, accounts) {
     usdc: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
     usdt: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
     stkAave: "0x4da27a545c0c5B758a6BA100e3a049001de870f5",
+    fei: "0x956f47f50a910163d8bf957cf5846d573e7f87ca",
+    rai: "0x03ab458634910aad20ef5f1c8ee96f1d6ac54919",
   }
 
   for (const tokenName in tokensUSD) {

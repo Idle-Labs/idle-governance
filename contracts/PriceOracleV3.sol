@@ -24,6 +24,8 @@ contract PriceOracleV3 is Ownable {
   address constant public USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
   address constant public USDT = 0xdAC17F958D2ee523a2206206994597C13D831ec7;
   address public constant stkAAVE = address(0x4da27a545c0c5B758a6BA100e3a049001de870f5);
+  address constant public RAI = 0x03ab458634910AaD20eF5f1C8ee96F1D6ac54919;
+  address constant public FEI = 0x956F47F50A910163D8BF957Cf5846D573E7f87CA;
 
   uint256 public blocksPerYear = 2371428; // -> blocks per year with ~13.3s block time
   uint256 public constant secondsPerYear = 31536000;
@@ -38,6 +40,7 @@ contract PriceOracleV3 is Ownable {
     priceFeedsUSD[WBTC] = 0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c; // wBTC
     priceFeedsUSD[DAI] = 0xAed0c38402a5d19df6E4c03F4E2DceD6e29c1ee9; // DAI
     priceFeedsUSD[stkAAVE] = 0x547a514d5e3769680Ce22B2361c10Ea13619e8a9; // AAVE
+    priceFeedsUSD[FEI] = 0x31e0a88fecB6eC0a411DBe0e9E76391498296EE9; // FEI
 
     // ETH feeds
     priceFeedsETH[WBTC] = 0xdeb288F737066589598e9214E782fa5A8eD689e8; // wBTC
@@ -47,6 +50,8 @@ contract PriceOracleV3 is Ownable {
     priceFeedsETH[USDC] = 0x986b5E1e1755e3C2440e960477f25201B0a8bbD4; // USDC
     priceFeedsETH[USDT] = 0xEe9F2375b4bdF6387aa8265dD4FB8F16512A1d46; // USDT
     priceFeedsETH[stkAAVE] = 0x6Df09E975c830ECae5bd4eD9d90f3A95a4f88012; // AAVE
+    priceFeedsETH[RAI] = 0x4ad7B025127e89263242aB68F0f9c4E5C033B489; // RAI
+    priceFeedsETH[FEI] = 0x7F0D2c2838c6AC24443d13e23d99490017bDe370; // FEI
   }
 
   /// @notice get price in USD for an asset
