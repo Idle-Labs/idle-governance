@@ -1,9 +1,9 @@
 pragma solidity 0.6.12;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
+import "./interfaces/IERC20Detailed.sol";
 import "./interfaces/IdleToken.sol";
 import "./interfaces/CERC20.sol";
 import "./interfaces/AToken.sol";
@@ -11,7 +11,7 @@ import "./interfaces/Comptroller.sol";
 import "./interfaces/ChainLinkOracle.sol";
 import "./interfaces/IAaveIncentivesController.sol";
 
-contract PriceOracleV3 is Ownable {
+contract PriceOracleV3 is OwnableUpgradeable {
   using SafeMath for uint256;
 
   uint256 constant private ONE_18 = 10**18;
@@ -27,13 +27,24 @@ contract PriceOracleV3 is Ownable {
   address constant public RAI = 0x03ab458634910AaD20eF5f1C8ee96F1D6ac54919;
   address constant public FEI = 0x956F47F50A910163D8BF957Cf5846D573E7f87CA;
 
-  uint256 public blocksPerYear = 2371428; // -> blocks per year with ~13.3s block time
+  uint256 public blocksPerYear;
   uint256 public constant secondsPerYear = 31536000;
+
   // underlying -> chainlink feed see https://docs.chain.link/docs/reference-contracts
   mapping (address => address) public priceFeedsUSD;
   mapping (address => address) public priceFeedsETH;
 
-  constructor() public {
+  // // Used to prevent initialization of the implementation contract
+  // /// @custom:oz-upgrades-unsafe-allow constructor
+  // constructor() public {
+  //   initialize();
+  // }
+
+  function initialize() public {
+    __Ownable_init();
+
+    blocksPerYear = 2371428; // -> blocks per year with ~13.3s block time
+
     // USD feeds
     priceFeedsUSD[WETH] = 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419; // WETH
     priceFeedsUSD[COMP] = 0xdbd020CAeF83eFd542f4De03e3cF0C28A4428bd5; // COMP
@@ -74,7 +85,7 @@ contract PriceOracleV3 is Ownable {
   function getCompApr(address _cToken, address _token) external view returns (uint256) {
     CERC20 _ctoken = CERC20(_cToken);
     uint256 compSpeeds = Comptroller(_ctoken.comptroller()).compSpeeds(_cToken);
-    uint256 cTokenNAV = _ctoken.exchangeRateStored().mul(IERC20(_cToken).totalSupply()).div(ONE_18);
+    uint256 cTokenNAV = _ctoken.exchangeRateStored().mul(IERC20Detailed(_cToken).totalSupply()).div(ONE_18);
     // how much costs 1COMP in token (1e(_token.decimals()))
     uint256 compUnderlyingPrice = getPriceToken(COMP, _token);
     // mul(100) needed to have a result in the format 4.4e18
@@ -85,7 +96,7 @@ contract PriceOracleV3 is Ownable {
   function getStkAaveApr(address _aToken, address _token) external view returns (uint256) {
     IAaveIncentivesController _ctrl = IAaveIncentivesController(AToken(_aToken).getIncentivesController());
     (,uint256 aavePerSec,) = _ctrl.getAssetData(_aToken);
-    uint256 aTokenNAV = IERC20(_aToken).totalSupply();
+    uint256 aTokenNAV = IERC20Detailed(_aToken).totalSupply();
     // how much costs 1AAVE in token (1e(_token.decimals()))
     uint256 aaveUnderlyingPrice = getPriceToken(stkAAVE, _token);
     // mul(100) needed to have a result in the format 4.4e18
@@ -112,7 +123,7 @@ contract PriceOracleV3 is Ownable {
     if (tokenUSD == 0) {
       return price;
     }
-    return assetUSD.mul(10**(uint256(ERC20(_token).decimals()))).div(tokenUSD); // 1e(tokenDecimals)
+    return assetUSD.mul(10**(uint256(IERC20Detailed(_token).decimals()))).div(tokenUSD); // 1e(tokenDecimals)
   }
 
   // #### onlyOwner

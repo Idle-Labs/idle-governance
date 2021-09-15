@@ -1,3 +1,5 @@
+const { deployProxy, upgradeProxy } = require('@openzeppelin/truffle-upgrades');
+
 const PriceOracleV3 = artifacts.require("PriceOracleV3");
 const BigNumber = require('bignumber.js');
 const BNify = s => new BigNumber(String(s));
@@ -7,9 +9,10 @@ module.exports = async function (deployer, network, accounts) {
     return;
   }
 
-  const creator = process.env.CREATOR;
+  const creator = accounts[0];
+
   const timelock = '0xD6dABBc2b275114a2366555d6C481EF08FDC2556';
-  const oracle = await PriceOracleV3.new({from: creator, gas: BNify('2500000')}); // owner will be transferred to Timelock
+  const oracle = await deployProxy(PriceOracleV3, [], { deployer, initializer: "initialize" }, { from: creator, gas: BNify('6_000_000') });
   console.log('PriceOracleV3:', oracle.address);
   await oracle.transferOwnership(timelock, {from: creator});
 
