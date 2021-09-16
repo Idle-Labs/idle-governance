@@ -23,7 +23,7 @@ contract PriceOracleV3 is OwnableUpgradeable {
   address constant public TUSD = 0x0000000000085d4780B73119b644AE5ecd22b376;
   address constant public USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
   address constant public USDT = 0xdAC17F958D2ee523a2206206994597C13D831ec7;
-  address public constant stkAAVE = address(0x4da27a545c0c5B758a6BA100e3a049001de870f5);
+  address constant public stkAAVE = address(0x4da27a545c0c5B758a6BA100e3a049001de870f5);
   address constant public RAI = 0x03ab458634910AaD20eF5f1C8ee96F1D6ac54919;
   address constant public FEI = 0x956F47F50A910163D8BF957Cf5846D573E7f87CA;
 
@@ -63,6 +63,7 @@ contract PriceOracleV3 is OwnableUpgradeable {
     priceFeedsETH[stkAAVE] = 0x6Df09E975c830ECae5bd4eD9d90f3A95a4f88012; // AAVE
     priceFeedsETH[RAI] = 0x4ad7B025127e89263242aB68F0f9c4E5C033B489; // RAI
     priceFeedsETH[FEI] = 0x7F0D2c2838c6AC24443d13e23d99490017bDe370; // FEI
+    priceFeedsETH[COMP] = 0x1B39Ee86Ec5979ba5C322b826B3ECb8C79991699; // COMP
   }
 
   /// @notice get price in USD for an asset
