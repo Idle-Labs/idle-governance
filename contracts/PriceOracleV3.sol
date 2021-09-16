@@ -23,7 +23,7 @@ contract PriceOracleV3 is OwnableUpgradeable {
   address constant public TUSD = 0x0000000000085d4780B73119b644AE5ecd22b376;
   address constant public USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
   address constant public USDT = 0xdAC17F958D2ee523a2206206994597C13D831ec7;
-  address constant public stkAAVE = address(0x4da27a545c0c5B758a6BA100e3a049001de870f5);
+  address constant public stkAAVE = 0x4da27a545c0c5B758a6BA100e3a049001de870f5;
   address constant public RAI = 0x03ab458634910AaD20eF5f1C8ee96F1D6ac54919;
   address constant public FEI = 0x956F47F50A910163D8BF957Cf5846D573E7f87CA;
 
