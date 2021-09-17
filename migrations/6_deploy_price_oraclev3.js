@@ -12,7 +12,7 @@ module.exports = async function (deployer, network, accounts) {
   const creator = accounts[0];
 
   const timelock = '0xD6dABBc2b275114a2366555d6C481EF08FDC2556';
-  const oracle = await deployProxy(PriceOracleV3, [], { deployer, initializer: "initialize" }, { from: creator, gas: BNify('6_000_000') });
+  const oracle = await deployProxy(PriceOracleV3, [], { deployer, initializer: "initialize" }, { from: creator, gas: BNify('3_000_000') });
   console.log('PriceOracleV3:', oracle.address);
   await oracle.transferOwnership(timelock, {from: creator});
 

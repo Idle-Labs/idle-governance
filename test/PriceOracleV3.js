@@ -56,8 +56,9 @@ contract('PriceOracleV3', function ([_, creator, nonOwner, someone, foo, manager
   });
 
   it('initialize should revert after deploy', async function () {
-    await expectRevert.unspecified(this.oracle.initialize({ from: creator }));
-    await expectRevert.unspecified(this.oracle.initialize({ from: nonOwner }));
+    const msg = "Initializable: contract is already initialized";
+    await expectRevert(this.oracle.initialize({ from: creator }), msg);
+    await expectRevert(this.oracle.initialize({ from: nonOwner }), msg);
   });
 
   it('allows onlyOwner to setBlocksPerYear', async function () {
