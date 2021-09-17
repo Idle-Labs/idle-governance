@@ -12,7 +12,7 @@ import "./interfaces/Comptroller.sol";
 import "./interfaces/ChainLinkOracle.sol";
 import "./interfaces/IAaveIncentivesController.sol";
 
-contract PriceOracleV3 is Initializable, OwnableUpgradeable {
+contract PriceOracleV3 is OwnableUpgradeable {
   using SafeMath for uint256;
 
   uint256 constant private ONE_18 = 10**18;
@@ -35,13 +35,7 @@ contract PriceOracleV3 is Initializable, OwnableUpgradeable {
   mapping (address => address) public priceFeedsUSD;
   mapping (address => address) public priceFeedsETH;
 
-  // // Used to prevent initialization of the implementation contract
-  // /// @custom:oz-upgrades-unsafe-allow constructor
-  // constructor() public {
-  //   initialize();
-  // }
-
-  function initialize() public {
+  function initialize() public initializer {
     __Ownable_init();
 
     blocksPerYear = 2371428; // -> blocks per year with ~13.3s block time
