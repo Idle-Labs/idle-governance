@@ -1,6 +1,7 @@
 pragma solidity 0.6.12;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 
 import "./interfaces/IERC20Detailed.sol";
@@ -11,7 +12,7 @@ import "./interfaces/Comptroller.sol";
 import "./interfaces/ChainLinkOracle.sol";
 import "./interfaces/IAaveIncentivesController.sol";
 
-contract PriceOracleV3 is OwnableUpgradeable {
+contract PriceOracleV3 is Initializable, OwnableUpgradeable {
   using SafeMath for uint256;
 
   uint256 constant private ONE_18 = 10**18;
