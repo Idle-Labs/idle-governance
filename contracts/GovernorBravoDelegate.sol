@@ -30,7 +30,7 @@ contract GovernorBravoDelegate is GovernorBravoDelegateStorageV2, GovernorBravoE
     uint public constant quorumVotes = 520000e18; // 520,000 = 4% of Idle max supply
 
     /// @notice The maximum number of actions that can be included in a proposal
-    uint public constant proposalMaxOperations = 10; // 10 actions
+    uint public constant proposalMaxOperations = 15; // 15 actions
 
     /// @notice The EIP-712 typehash for the contract's domain
     bytes32 public constant DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,uint256 chainId,address verifyingContract)");
