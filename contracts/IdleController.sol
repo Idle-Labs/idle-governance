@@ -3,7 +3,6 @@ pragma solidity 0.6.12;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./interfaces/IdleToken.sol";
 import "./lib/Exponential.sol";
-
 import "./PriceOracle.sol";
 import "./Idle.sol";
 import "./IdleControllerStorage.sol";
@@ -288,6 +287,11 @@ contract IdleController is IdleControllerStorage, Exponential {
     require(bonusEnd == 0, "already initialized");
     bonusEnd = now + 30 days;
     bonusMultiplier = _bonusMultiplier;
+  }
+
+  function _withdrawToken(address _token, address _to, uint256 _amount) external {
+    require(msg.sender == admin, "Not authorized");
+    ERC20(_token).transfer(_to, _amount);
   }
 
   /**
